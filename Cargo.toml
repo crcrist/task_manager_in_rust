@@ -1,0 +1,11 @@
+[package]
+name = "conborli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+sysinfo = "0.30.13"
+tui = "0.19"
+crossterm = "0.27"
+iced = {version = "0.12.1", features = ["smol"]}
