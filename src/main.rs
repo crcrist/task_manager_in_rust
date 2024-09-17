@@ -1,5 +1,5 @@
 // builds the GUI
-use iced::{
+use iced::{ theme::Theme,
     alignment, executor, time, Application, Command, Element, Length, Settings, Subscription,
     widget::{Button, Column, Container, Row, Scrollable, Text},
 };
@@ -91,7 +91,7 @@ impl TaskManager {
 
 // defining how the GUI behaves
 impl Application for TaskManager {
-    type Executor = executor::Default;
+    type Executor = iced::executor::Default;
     type Message = Message;
     type Flags = ();
     type Theme = iced::theme::Theme;
@@ -111,6 +111,10 @@ impl Application for TaskManager {
     // defines the window title as Task Manager
     fn title(&self) -> String {
         String::from("Task Manager")
+    }
+
+    fn theme(&self) -> Theme {
+        Theme::Dark
     }
 
     // handles incoming messages (killing or sorting)
@@ -146,35 +150,43 @@ impl Application for TaskManager {
     fn view(&self) -> Element<Message> {
         // displays buttons for sorting the process list by PID, name, memory, and CPU
         let header = Row::new()
-            .push(Button::new("PID").on_press(Message::Sort(SortColumn::Pid)))
-            .push(Button::new("Name").on_press(Message::Sort(SortColumn::Name)))
-            .push(Button::new("Memory (MB)").on_press(Message::Sort(SortColumn::Memory)))
-            .push(Button::new("CPU (%)").on_press(Message::Sort(SortColumn::Cpu)));
+        
+            
+            // space inbetween header buttons
+            .spacing(10)
+            .push(Button::new("PID").on_press(Message::Sort(SortColumn::Pid)).width(Length::FillPortion(1)))
+            .push(Button::new("Name").on_press(Message::Sort(SortColumn::Name)).width(Length::FillPortion(2)))
+            .push(Button::new("Memory (MB)").on_press(Message::Sort(SortColumn::Memory)).width(Length::FillPortion(1)))
+            .push(Button::new("CPU (%)").on_press(Message::Sort(SortColumn::Cpu)).width(Length::FillPortion(1)));
         // displays each porcess in a row with it's PID, name, memory, CPU usage, and Kill button
         let processes = self.processes.iter().fold(
             Column::new().spacing(5),
             |column, process| {
                 column.push(
                     Row::new()
-                        .push(Text::new(process.pid.to_string()).width(Length::Fixed(100.0)))
-                        .push(Text::new(&process.name).width(Length::Fixed(200.0)))
-                        .push(Text::new(process.memory.to_string()).width(Length::Fixed(100.0)))
-                        .push(Text::new(format!("{:.1}", process.cpu)).width(Length::Fixed(100.0)))
+                    .spacing(10)
+                        .push(Text::new(process.pid.to_string()).width(Length::FillPortion(1)))
+                        .push(Text::new(&process.name).width(Length::FillPortion(2)))
+                        .push(Text::new(process.memory.to_string()).width(Length::FillPortion(1)))
+                        .push(Text::new(format!("{:.1}", process.cpu)).width(Length::FillPortion(1)))
                         .push(
                             Button::new("Kill")
                                 .on_press(Message::KillProcess(process.pid))
+                                .width(Length::Shrink)
                         )
                 )
             },
         );
         // process list is scrollable
         let content = Column::new()
+            .spacing(10)
             .push(header)
             .push(Scrollable::new(processes));
 
         Container::new(content)
             .width(Length::Fill)
             .height(Length::Fill)
+            .padding(30)
             .center_x()
             .center_y()
             .align_x(alignment::Horizontal::Center)
